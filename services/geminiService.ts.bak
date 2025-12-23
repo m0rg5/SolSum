@@ -1,0 +1,115 @@
+
+import { GoogleGenAI, Chat, Type, FunctionDeclaration } from "@google/genai";
+import { PowerItem, SystemTotals, ChatMode, ChargingSource } from '../types';
+
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+// --- FUNCTION DEFINITIONS FOR CHAT ---
+
+const addLoadItemDeclaration: FunctionDeclaration = {
+  name: "addLoadItem",
+  description: "Add a new electrical load device (consumer) to the list. Use this for appliances, electronics, lights, pumps, Starlink, etc.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      name: { type: Type.STRING, description: "Name of the device (e.g., 'Starlink', 'Microwave')" },
+      watts: { type: Type.NUMBER, description: "Power consumption in Watts" },
+      hours: { type: Type.NUMBER, description: "Daily usage hours" },
+      category: { type: Type.STRING, enum: ['DC Loads (Native/DCDC)', 'AC Loads (Inverter)', 'System Overhead'], description: "The category of the load." },
+      notes: { type: Type.STRING, description: "Optional notes about usage" }
+    },
+    required: ["name", "watts", "hours", "category"]
+  }
+};
+
+const addChargingSourceDeclaration: FunctionDeclaration = {
+  name: "addChargingSource",
+  description: "Add a new power GENERATION source (producer). Use this for Solar Panels, Alternators, Wind Turbines, or Battery Chargers.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      name: { type: Type.STRING, description: "Name of the source (e.g. '400W Solar Panel')" },
+      input: { type: Type.NUMBER, description: "Input value" },
+      unit: { type: Type.STRING, enum: ['W', 'A'], description: "Unit of input (Watts or Amps)" },
+      type: { type: Type.STRING, enum: ['solar', 'alternator', 'generator', 'mppt', 'charger', 'wind', 'other'] },
+      efficiency: { type: Type.NUMBER, description: "Efficiency decimal (0.0 to 1.0). Default 0.85 for solar." },
+      hours: { type: Type.NUMBER, description: "Estimated daily run hours" }
+    },
+    required: ["name", "input", "unit", "type"]
+  }
+};
+
+// --- API CALLS ---
+
+export const analyzeSystemSimple = async (items: PowerItem[], totals: SystemTotals): Promise<string> => {
+  const prompt = `
+    Analyze this ${totals.dailyAhGenerated > 0 ? 'active' : 'theoretical'} Truck Power System:
+    
+    Loads:
+    ${items.map(i => `- ${i.name} (${i.category}): ${i.watts}W for ${i.hours}h/day`).join('\n')}
+    
+    Energy Summary:
+    Consumption: ${totals.dailyWhConsumed.toFixed(0)} Wh (${totals.dailyAhConsumed.toFixed(1)} Ah)
+    Generation: ${totals.dailyWhGenerated.toFixed(0)} Wh (${totals.dailyAhGenerated.toFixed(1)} Ah)
+    Net: ${totals.netAh.toFixed(1)} Ah/day
+    Forecasted SoC: ${totals.finalSoC.toFixed(0)}%
+    
+    Provide a concise audit. Are they generating enough power? Keep under 120 words. Use Markdown for bolding key metrics.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+    });
+    return response.text || "No analysis available.";
+  } catch (error) {
+    return "Failed to generate analysis.";
+  }
+};
+
+export const createChatSession = (mode: ChatMode): Chat => {
+  const GENERAL_INSTRUCTION = `
+    You are 'Sol Sum', an expert 24V Off-Grid Power Engineer.
+    Keep your answers concise and technical. 
+    Use **Markdown** for formatting.
+  `;
+
+  const SPEC_ASSISTANT_INSTRUCTION = `
+    You are a DATA ENTRY ASSISTANT.
+    Identify technical specs (Watts, Amps, Volts) for items the user mentions.
+    ONLY call 'addLoadItem' or 'addChargingSource' if the user provides a specific model or explicitly wants to add an item.
+  `;
+
+  return ai.chats.create({
+    model: 'gemini-3-flash-preview',
+    config: { 
+      systemInstruction: mode === 'general' ? GENERAL_INSTRUCTION : SPEC_ASSISTANT_INSTRUCTION,
+      tools: [{ functionDeclarations: [addLoadItemDeclaration, addChargingSourceDeclaration] }]
+    },
+  });
+};
+
+export const getSolarForecast = async (location: string) => {
+  const prompt = `Return JSON PSH for location: "${location}".`;
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            sunnyHours: { type: Type.NUMBER },
+            cloudyHours: { type: Type.NUMBER }
+          },
+          required: ["sunnyHours", "cloudyHours"]
+        }
+      }
+    });
+    return JSON.parse(response.text);
+  } catch (error) {
+    return null;
+  }
+};
