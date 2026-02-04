@@ -1,213 +1,90 @@
-
-import React, { useState, useEffect } from 'react';
-import { ChargingSource, BatteryConfig } from '../types';
-
-interface ChargingTableProps {
-  sources: ChargingSource[];
-  battery: BatteryConfig;
-  onUpdateSource: (id: string, field: keyof ChargingSource, value: any) => void;
-  onDeleteSource: (id: string) => void;
-  onAddSource: () => void;
-  onAIAddSource: () => void;
-  onUpdateBattery: (field: keyof BatteryConfig, value: any) => void;
-  onContextClick: (source: ChargingSource) => void;
-  onReorder: (fromId: string, toId: string) => void;
-  onSort: (key: string, direction: 'asc' | 'desc') => void;
-}
-
-const isMgmt = (source: ChargingSource) => 
-  source.type === 'mppt' || 
-  source.name.toLowerCase().includes('mppt') || 
-  source.name.toLowerCase().includes('rover') ||
-  source.name.toLowerCase().includes('inverter');
-
-const NumberInput = ({ 
-  value, 
-  onChange, 
-  className,
-  step = "any",
-  disabled = false
-}: { 
-  value: number, 
-  onChange: (val: number) => void, 
-  className?: string,
-  step?: string,
-  disabled?: boolean
-}) => {
-  const [localStr, setLocalStr] = useState(value?.toString() || '0');
-  useEffect(() => {
-    const v = Number(value) || 0;
-    const parsed = parseFloat(localStr);
-    if (Math.abs(parsed - v) > 0.0001 || isNaN(parsed)) setLocalStr(value?.toString() || '0');
-  }, [value]);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setLocalStr(val);
-    const parsed = parseFloat(val);
-    if (!isNaN(parsed)) onChange(parsed);
-    else if (val === '') onChange(0);
-  };
-  
-  return (
-    <input 
-      type="number" 
-      step={step} 
-      className={`bg-transparent text-right text-white focus:outline-none w-full pr-1 font-medium placeholder-slate-600 ${className} ${disabled ? 'opacity-30' : ''}`} 
-      value={localStr} 
-      onChange={handleChange} 
-      disabled={disabled}
-      onFocus={(e) => !disabled && e.target.select()} 
-      onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-    />
-  );
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import React, { useState, useEffect, useMemo } from 'react';
+import { getEffectiveSolarHours, normalizeAutoSolarHours } from '@/services/powerLogic';
+const isMgmt = (source) => source.type === 'mppt' ||
+    source.name.toLowerCase().includes('mppt') ||
+    source.name.toLowerCase().includes('rover') ||
+    source.name.toLowerCase().includes('inverter');
+const NumberInput = ({ value, onChange, className, step = "any", disabled = false, placeholder = "" }) => {
+    const [localStr, setLocalStr] = useState(Number.isFinite(value) ? String(value) : '');
+    useEffect(() => {
+        if (Number.isFinite(value)) {
+            const next = String(value);
+            if (localStr !== next)
+                setLocalStr(next);
+        }
+        else {
+            if (localStr !== '')
+                setLocalStr('');
+        }
+    }, [value]);
+    const handleChange = (e) => {
+        const val = e.target.value;
+        setLocalStr(val);
+        const parsed = parseFloat(val);
+        if (!isNaN(parsed))
+            onChange(parsed);
+    };
+    return (_jsx("input", { type: "number", step: step, placeholder: placeholder, className: `bg-transparent text-right text-white focus:outline-none w-full pr-0.5 font-medium placeholder-slate-600 ${className} ${disabled ? 'opacity-30' : ''}`, value: localStr, onChange: handleChange, disabled: disabled, onFocus: (e) => !disabled && e.target.select(), onKeyDown: (e) => e.key === 'Enter' && e.currentTarget.blur() }));
 };
-
-const SortHeader = ({ label, sortKey, currentSort, onSort, className, widthClass }: { label: string, sortKey: string, currentSort: { key: string, dir: 'asc' | 'desc' } | null, onSort: (k: string, d: 'asc' | 'desc') => void, className?: string, widthClass?: string }) => {
-  const isActive = currentSort?.key === sortKey;
-  const handleClick = () => onSort(sortKey, isActive && currentSort.dir === 'desc' ? 'asc' : 'desc');
-  return (
-    <th className={`px-4 py-4 cursor-pointer hover:text-white transition-colors group select-none whitespace-nowrap ${className} ${widthClass}`} onClick={handleClick}>
-      <div className={`flex items-center gap-1 ${className?.includes('right') ? 'justify-end' : ''}`}>
-        {label}
-        <span className={`text-[10px] flex flex-col leading-none ml-1 ${isActive ? 'text-blue-400' : 'text-slate-700 group-hover:text-slate-500'}`}>
-           <span className={`${isActive && currentSort.dir === 'asc' ? 'opacity-100' : 'opacity-40'}`}>▲</span>
-           <span className={`${isActive && currentSort.dir === 'desc' ? 'opacity-100' : 'opacity-40'}`}>▼</span>
-        </span>
-      </div>
-    </th>
-  );
+const SortHeader = ({ label, sortKey, currentSort, onSort, className, widthClass }) => {
+    const isActive = currentSort?.key === sortKey;
+    const handleClick = () => onSort(sortKey, isActive && currentSort.dir === 'desc' ? 'asc' : 'desc');
+    return (_jsx("th", { className: `px-2 py-2 cursor-pointer hover:text-white transition-colors group select-none whitespace-nowrap ${className} ${widthClass}`, onClick: handleClick, children: _jsxs("div", { className: `flex items-center gap-1 ${className?.includes('right') ? 'justify-end' : ''}`, children: [label, _jsxs("span", { className: `text-[7px] flex flex-col leading-none ml-0.5 ${isActive ? 'text-blue-400' : 'text-slate-700 group-hover:text-slate-500'}`, children: [_jsx("span", { className: `${isActive && currentSort.dir === 'asc' ? 'opacity-100' : 'opacity-40'}`, children: "\u25B2" }), _jsx("span", { className: `${isActive && currentSort.dir === 'desc' ? 'opacity-100' : 'opacity-40'}`, children: "\u25BC" })] })] }) }));
 };
-
-const ChargingTable: React.FC<ChargingTableProps> = ({ 
-  sources, battery, onUpdateSource, onDeleteSource, onAddSource, onAIAddSource, onUpdateBattery, onContextClick, onReorder, onSort
-}) => {
-  const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [sortState, setSortState] = useState<{ key: string, dir: 'asc' | 'desc' } | null>(null);
-  const handleSort = (key: string, dir: 'asc' | 'desc') => { setSortState({ key, dir }); onSort(key, dir); };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 overflow-hidden ring-1 ring-white/5">
-        <table className="w-full text-left text-sm text-slate-300 table-auto border-collapse">
-          <thead className="bg-slate-950 text-[10px] uppercase text-slate-500 font-black tracking-widest">
-            <tr>
-              <th className="w-8"></th>
-              <SortHeader label="Charging Source" sortKey="name" currentSort={sortState} onSort={handleSort} widthClass="min-w-[200px]" />
-              <SortHeader label="Input" sortKey="input" currentSort={sortState} onSort={handleSort} className="text-right" widthClass="w-[140px]" />
-              <th className="px-4 py-4 text-center whitespace-nowrap w-[80px]">☀️ Auto</th>
-              <SortHeader label="Hrs/Day" sortKey="hours" currentSort={sortState} onSort={handleSort} className="text-right" widthClass="w-[110px]" />
-              <SortHeader label="Efficiency" sortKey="efficiency" currentSort={sortState} onSort={handleSort} className="text-right" widthClass="w-[110px]" />
-              <SortHeader label="Daily Wh" sortKey="dailyWh" currentSort={sortState} onSort={handleSort} className="text-right" widthClass="w-[110px]" />
-              <th className="px-2 py-4 w-10 text-center">AI</th>
-              <th className="px-4 py-4 w-10"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/50">
-            {sources.map(source => {
-              const managementItem = isMgmt(source);
-              let effectiveHours = Number(source.hours) || 0;
-              let isAutoActive = false;
-              if (source.autoSolar && source.type === 'solar' && battery.forecast && !battery.forecast.loading) {
-                  effectiveHours = Number(battery.forecast.sunnyHours) || 0;
-                  isAutoActive = true;
-              }
-              const efficiency = Number(source.efficiency) || 0.85;
-              const inputVal = Number(source.input) || 0;
-              const systemV = Number(battery.voltage) || 24;
-              const dailyWh = managementItem ? 0 : (source.unit === 'W' ? (inputVal * effectiveHours * efficiency) : (inputVal * systemV * effectiveHours * efficiency));
-                
-              return (
-                <tr key={source.id} className={`hover:bg-slate-800/40 transition-colors group ${draggedId === source.id ? 'opacity-50 bg-slate-800' : ''} ${managementItem ? 'bg-slate-900/40 opacity-60' : ''}`}
-                  draggable onDragStart={(e) => { setDraggedId(source.id); e.dataTransfer.setData("text/plain", source.id); }}
-                  onDragEnd={() => setDraggedId(null)} onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => { e.preventDefault(); if (draggedId && draggedId !== source.id) onReorder(draggedId, source.id); }}>
-                  <td className="pl-3 pr-0 py-3 w-8 text-center cursor-move text-slate-700 hover:text-slate-400">⋮⋮</td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <input type="text" value={source.name} onChange={(e) => onUpdateSource(source.id, 'name', e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-                      className={`bg-transparent border-b border-transparent hover:border-slate-600 focus:border-blue-500 w-full text-slate-200 transition-colors text-sm font-medium outline-none ${managementItem ? 'italic' : ''}`}/>
-                  </td>
-                  <td className="px-2 py-3 text-right">
-                    {!managementItem ? (
-                      <div className="inline-flex items-center justify-end w-[100px] bg-slate-850 border border-slate-700 rounded-md px-2 py-1.5 focus-within:border-blue-500 transition-colors">
-                        <NumberInput value={source.input} onChange={(val) => onUpdateSource(source.id, 'input', val)} />
-                        <select value={source.unit} onChange={(e) => onUpdateSource(source.id, 'unit', e.target.value)} className="bg-transparent border-none text-[10px] font-black p-0 text-slate-500 outline-none cursor-pointer hover:text-blue-400">
-                          <option value="W" className="bg-slate-900">W</option><option value="A" className="bg-slate-900">A</option>
-                        </select>
-                      </div>
-                    ) : (
-                      <div className="text-[10px] text-slate-600 italic font-mono pr-2">Mgmt Device</div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-center whitespace-nowrap">
-                    {!managementItem && source.type === 'solar' && <input type="checkbox" checked={!!source.autoSolar} onChange={(e) => onUpdateSource(source.id, 'autoSolar', e.target.checked)} className="rounded border-slate-700 bg-slate-800 text-blue-600 w-4 h-4"/>}
-                  </td>
-                  <td className="px-2 py-3 text-right">
-                    {!managementItem ? (
-                      <div className={`inline-flex items-center justify-end w-[80px] bg-slate-850 border border-slate-700 rounded-md px-2 py-1.5 focus-within:border-blue-500 transition-colors ${source.autoSolar ? 'border-yellow-500/50' : ''}`}>
-                        <NumberInput value={isAutoActive ? effectiveHours : (Number(source.hours) || 0)} onChange={(val) => onUpdateSource(source.id, 'hours', val)} step="0.1" disabled={source.autoSolar}
-                          className={source.autoSolar ? 'text-yellow-400' : ''}/>
-                        <span className="text-[10px] text-slate-500 font-black uppercase shrink-0">H</span>
-                      </div>
-                    ) : (
-                      <span className="text-slate-800 font-mono">-</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right text-slate-400 font-mono text-sm whitespace-nowrap">
-                    {!managementItem ? `${(efficiency * 100).toFixed(0)}%` : '-'}
-                  </td>
-                  <td className={`px-4 py-3 text-right font-mono font-bold whitespace-nowrap ${managementItem ? 'text-slate-500 opacity-50 italic text-[10px]' : 'text-cyan-400'}`}>
-                    {managementItem ? '--- (Mgmt)' : (dailyWh || 0).toFixed(0)}
-                  </td>
-                  <td className="px-2 py-3 text-center w-10">
-                    <button onClick={() => onContextClick(source)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-blue-600 border border-slate-700 text-xs shadow-sm">➕</button>
-                  </td>
-                  <td className="px-4 py-3 text-center w-10">
-                    <button onClick={() => onDeleteSource(source.id)} className="text-slate-600 hover:text-red-400 transition-colors p-1 group/del">
-                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 group-hover/del:scale-110 transition-transform"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            <tr>
-              <td colSpan={9} className="p-2"><div className="flex gap-2">
-                <button onClick={onAddSource} className="flex-1 flex items-center justify-center gap-2 py-3 border border-dashed border-slate-700 rounded-lg hover:bg-slate-800 text-slate-500 text-[10px] font-black uppercase tracking-widest transition-all">
-                   Add Source
-                </button>
-                <button onClick={onAIAddSource} className="flex-1 flex items-center justify-center gap-2 py-3 border border-dashed border-blue-900/50 bg-blue-950/20 rounded-lg hover:bg-blue-900/40 text-blue-400 text-[10px] font-black uppercase tracking-widest transition-all">
-                   ✨ Spec Asst.
-                </button>
-              </div></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-         <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 ring-1 ring-white/5 shadow-inner">
-          <label className="text-[10px] uppercase text-slate-600 font-black block mb-2 tracking-widest">Location / Postcode</label>
-          <input type="text" value={battery.location || ''} onChange={(e) => onUpdateBattery('location', e.target.value)} placeholder="Forecast location..." className="bg-transparent border-none w-full text-lg focus:ring-0 text-slate-200 font-bold outline-none" />
-        </div>
-        <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 ring-1 ring-white/5 shadow-inner">
-          <label className="text-[10px] uppercase text-slate-600 font-black block mb-2 tracking-widest">Battery Ah</label>
-          <input type="number" value={battery.capacityAh} onChange={(e) => onUpdateBattery('capacityAh', Number(e.target.value))} className="bg-transparent border-none w-full text-slate-200 font-mono text-xl focus:ring-0 font-black outline-none" />
-        </div>
-        <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 ring-1 ring-white/5 shadow-inner">
-          <label className="text-[10px] uppercase text-slate-600 font-black block mb-2 tracking-widest">Initial SoC (%)</label>
-          <input type="number" value={battery.initialSoC} onChange={(e) => onUpdateBattery('initialSoC', Math.min(100, Number(e.target.value)))} className="bg-transparent border-none w-full text-slate-200 font-mono text-xl focus:ring-0 font-black outline-none" />
-        </div>
-        <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 ring-1 ring-white/5 shadow-inner">
-          <label className="text-[10px] uppercase text-slate-600 font-black block mb-2 tracking-widest">System Voltage</label>
-          <div className="flex gap-2 mt-2">
-            {[12, 24, 48].map((v) => (
-              <button key={v} onClick={() => onUpdateBattery('voltage', v)} className={`flex-1 py-1.5 text-xs font-mono font-black rounded-lg transition-all ${battery.voltage === v ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'bg-slate-800 text-slate-500 hover:bg-slate-700'}`}>{v}V</button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+const ChargingTable = ({ sources, battery, highlightedId, onUpdateSource, onDeleteSource, onAddSource, onAIAddSource, onUpdateBattery, onReorder, onSort }) => {
+    const [draggedId, setDraggedId] = useState(null);
+    const [sortState, setSortState] = useState(null);
+    const sortedSources = useMemo(() => {
+        if (!sortState)
+            return sources;
+        const { key, dir } = sortState;
+        return [...sources].sort((a, b) => {
+            let valA = a[key];
+            let valB = b[key];
+            if (key === 'dailyWh') {
+                const hA = getEffectiveSolarHours(a, battery);
+                const hB = getEffectiveSolarHours(b, battery);
+                // Watts Only Logic
+                valA = (a.input * hA * a.efficiency * a.quantity);
+                valB = (b.input * hB * b.efficiency * b.quantity);
+            }
+            if (typeof valA === 'string')
+                return dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            return dir === 'asc' ? (Number(valA) || 0) - (Number(valB) || 0) : (Number(valB) || 0) - (Number(valA) || 0);
+        });
+    }, [sources, sortState, battery]);
+    const handleSort = (key, dir) => {
+        setSortState({ key, dir });
+        onSort(key, dir);
+    };
+    return (_jsx("div", { className: "bg-slate-900 rounded-lg shadow-2xl border border-slate-800 overflow-hidden ring-1 ring-white/5", children: _jsxs("table", { className: "w-full text-left text-[12px] text-slate-300 table-auto border-collapse border-spacing-0", children: [_jsx("thead", { className: "bg-slate-950 text-[8px] uppercase text-slate-500 font-black tracking-widest border-b border-slate-800", children: _jsxs("tr", { children: [_jsx("th", { className: "w-6" }), _jsx(SortHeader, { label: "Charging Source", sortKey: "name", currentSort: sortState, onSort: handleSort, widthClass: "min-w-[180px]" }), _jsx("th", { className: "w-6 text-center", children: "\u2713" }), _jsx("th", { className: "px-1 py-2 text-center whitespace-nowrap w-[18px]", children: "@" }), _jsx(SortHeader, { label: "Input (W)", sortKey: "input", currentSort: sortState, onSort: handleSort, className: "text-right", widthClass: "w-[58px]" }), _jsx("th", { className: "px-1 py-2 text-center whitespace-nowrap w-[30px]", children: "\u2600\uFE0F Auto" }), _jsx(SortHeader, { label: "Hrs/Day", sortKey: "hours", currentSort: sortState, onSort: handleSort, className: "text-right", widthClass: "w-[46px]" }), _jsx(SortHeader, { label: "Efficiency", sortKey: "efficiency", currentSort: sortState, onSort: handleSort, className: "text-right", widthClass: "w-[38px]" }), _jsx(SortHeader, { label: "Daily Wh", sortKey: "dailyWh", currentSort: sortState, onSort: handleSort, className: "text-right", widthClass: "w-[45px]" }), _jsx("th", { className: "px-2 py-2 w-8" })] }) }), _jsxs("tbody", { className: "divide-y divide-slate-800/50", children: [sortedSources.map(source => {
+                            const managementItem = isMgmt(source);
+                            const rawEffectiveHours = getEffectiveSolarHours(source, battery);
+                            // Limit to 1 decimal place (e.g. 7.1) for cleaner display
+                            const effectiveHours = Math.round(rawEffectiveHours * 10) / 10;
+                            const efficiency = Number(source.efficiency) || 0.85;
+                            const inputVal = Number(source.input) || 0;
+                            const qty = Number(source.quantity) || 1;
+                            // WATTS ONLY LOGIC
+                            const dailyWh = managementItem ? 0 : (inputVal * rawEffectiveHours * efficiency * qty);
+                            const isHighlighted = highlightedId === source.id;
+                            const isDisabled = source.enabled === false;
+                            const norm = normalizeAutoSolarHours(battery);
+                            const isAutoErr = source.autoSolar && (norm.status === 'invalid' || norm.status === 'nodata');
+                            return (_jsxs("tr", { className: `hover:bg-slate-800/40 transition-all duration-700 group ${draggedId === source.id ? 'opacity-20 scale-[0.98]' : ''} ${managementItem ? 'bg-slate-900/40 opacity-60' : ''} ${isHighlighted ? 'bg-purple-900/40 border-purple-500/50 shadow-[inset_0_0_20px_rgba(168,85,247,0.1)] ring-1 ring-purple-500/30' : ''} ${isDisabled ? 'opacity-40 grayscale' : ''}`, draggable: true, onDragStart: (e) => {
+                                    setDraggedId(source.id);
+                                    e.dataTransfer.effectAllowed = 'move';
+                                    e.dataTransfer.setData("text/plain", source.id);
+                                }, onDragEnd: () => setDraggedId(null), onDragOver: (e) => {
+                                    e.preventDefault();
+                                    e.dataTransfer.dropEffect = 'move';
+                                }, onDragEnter: (e) => {
+                                    e.preventDefault();
+                                    if (draggedId && draggedId !== source.id) {
+                                        onReorder(draggedId, source.id);
+                                    }
+                                }, children: [_jsx("td", { className: "pl-2 pr-0 py-1 w-6 text-center cursor-move text-slate-700 group-hover:text-slate-400 select-none", children: "\u22EE\u22EE" }), _jsx("td", { className: "px-2 py-1 whitespace-nowrap", children: _jsx("input", { type: "text", value: source.name, onChange: (e) => onUpdateSource(source.id, 'name', e.target.value), onKeyDown: (e) => e.key === 'Enter' && e.target.blur(), className: `bg-transparent border-b border-transparent hover:border-slate-600 focus:border-blue-500 w-full text-slate-200 transition-colors text-[12px] font-medium outline-none ${managementItem ? 'italic' : ''}` }) }), _jsx("td", { className: "text-center w-6", children: _jsx("input", { type: "checkbox", checked: source.enabled !== false, onChange: (e) => onUpdateSource(source.id, 'enabled', e.target.checked), className: "rounded border-slate-700 bg-slate-800/50 text-blue-500 focus:ring-0 w-3 h-3 cursor-pointer" }) }), _jsx("td", { className: "px-1 py-1 text-right", children: _jsx("div", { className: "inline-flex items-center justify-center w-[18px] bg-slate-850 border border-slate-700 rounded px-1 py-0.5 focus-within:border-blue-500 transition-colors", children: _jsx(NumberInput, { value: source.quantity || 1, onChange: (val) => onUpdateSource(source.id, 'quantity', Math.max(1, val)), placeholder: "1", className: "text-center pr-0" }) }) }), _jsx("td", { className: "px-1 py-1 text-right", children: !managementItem ? (_jsxs("div", { className: "inline-flex items-center justify-end w-[46px] bg-slate-850 border border-slate-700 rounded px-1 py-0.5 focus-within:border-blue-500 transition-colors", children: [_jsx(NumberInput, { value: source.input, onChange: (val) => onUpdateSource(source.id, 'input', val) }), _jsx("span", { className: "text-[7px] text-slate-500 font-black uppercase shrink-0 pr-0.5 pl-1", children: "W" })] })) : (_jsx("span", { className: "text-slate-600 italic text-[10px]", children: "Internal" })) }), _jsx("td", { className: "px-2 py-1 text-center", children: source.type === 'solar' && (_jsx("input", { type: "checkbox", checked: source.autoSolar, onChange: (e) => onUpdateSource(source.id, 'autoSolar', e.target.checked), className: "w-3 h-3 rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-blue-500/20" })) }), _jsxs("td", { className: "px-1 py-1 text-right relative", children: [_jsxs("div", { className: `inline-flex items-center justify-end w-[38px] bg-slate-850 border border-slate-700 rounded px-1 py-0.5 focus-within:border-blue-500 transition-colors ${source.autoSolar ? 'opacity-50' : ''}`, children: [_jsx(NumberInput, { value: effectiveHours, onChange: (val) => onUpdateSource(source.id, 'hours', val), step: "0.1", disabled: source.autoSolar || managementItem }), _jsx("span", { className: "text-[7px] text-slate-500 font-black uppercase shrink-0", children: "H" })] }), isAutoErr && (_jsx("div", { className: "absolute -top-1 right-0.5 bg-rose-500 text-white text-[5px] font-black px-1 rounded animate-pulse", children: "AUTO ERR" }))] }), _jsx("td", { className: "px-1 py-1 text-right", children: _jsx("div", { className: "inline-flex items-center justify-end w-[32px] bg-slate-850 border border-slate-700 rounded px-1 py-0.5 focus-within:border-blue-500 transition-colors", children: _jsx(NumberInput, { value: efficiency, onChange: (val) => onUpdateSource(source.id, 'efficiency', val), step: "0.01", disabled: managementItem }) }) }), _jsx("td", { className: "px-2 py-1 text-right font-mono text-emerald-400 font-bold text-[11px] whitespace-nowrap", children: dailyWh.toFixed(0) }), _jsx("td", { className: "px-2 py-1 text-center w-8", children: _jsx("button", { onClick: () => onDeleteSource(source.id), className: "text-slate-400 hover:text-red-400 opacity-60 hover:opacity-100 transition-all p-0.5 group/del", children: _jsx("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2.5, stroke: "currentColor", className: "w-4 h-4 group-hover/del:scale-110 transition-transform", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M6 18 18 6M6 6l12 12" }) }) }) })] }, source.id));
+                        }), _jsx("tr", { children: _jsx("td", { colSpan: 10, className: "px-2 py-1", children: _jsxs("div", { className: "flex gap-1.5", children: [_jsx("button", { onClick: onAddSource, className: "w-[10%] flex-none flex items-center justify-center gap-2 py-1 border border-dashed border-slate-700 rounded hover:bg-slate-800 text-slate-500 text-sm font-medium transition-all", children: "+" }), _jsx("button", { onClick: onAIAddSource, className: "flex-1 flex items-center justify-center gap-2 py-1 border border-dashed border-blue-900/50 bg-blue-950/20 rounded hover:bg-blue-900/40 text-blue-400/80 text-[8px] font-black uppercase tracking-widest transition-all", children: "\u2728 Spec Asst." })] }) }) })] })] }) }));
 };
-
 export default ChargingTable;
