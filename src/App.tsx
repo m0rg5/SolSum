@@ -13,9 +13,12 @@ const STORAGE_KEY = "solsum_state_v2_1";
 const STORAGE_SCHEMA_VERSION = "2.1";
 const FORECAST_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 const App = () => {
+  console.log("Sol Sum: App component initializing...");
   const fileInputRef = useRef(null);
   const [hasHydrated, setHasHydrated] = useState(false);
+
   const getSavedData = () => {
+    console.log("Sol Sum: Checking local storage...");
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -86,7 +89,10 @@ const App = () => {
       return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [items, charging, battery, hasHydrated]);
+
+  console.log("Sol Sum: Calculating system totals...", { itemsCount: items.length, chargingCount: charging.length });
   const totals = useMemo(() => calculateSystemTotals(items, charging, battery), [items, charging, battery]);
+  console.log("Sol Sum: Totals calculated:", totals);
   useEffect(() => {
     const updateForecast = async () => {
       if (!battery.location || battery.location.length < 1)
@@ -253,6 +259,7 @@ const App = () => {
     e.target.value = '';
   };
   const netKwh = totals.netWh / 1000;
+  console.log("Sol Sum: Rendering main UI...");
   return (_jsxs("div", {
     className: "min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans app-root", children: [_jsx("header", { className: "bg-slate-950 border-b border-slate-800 sticky top-0 z-40 shadow-2xl pb-3 pt-2.5", children: _jsxs("div", { className: "max-w-[98%] mx-auto flex flex-col lg:flex-row items-center justify-between px-6 gap-6", children: [_jsxs("div", { className: "flex items-center gap-3 shrink-0", children: [_jsx("div", { className: "text-[40px] leading-none", children: "\u2600\uFE0F" }), _jsxs("div", { children: [_jsx("h1", { className: "app-header-font text-[1.6rem] text-white", children: "Sol Sum" }), _jsx("p", { className: "text-slate-500 text-[8px] font-semibold uppercase tracking-[0.1em] mt-0.5", children: "Solar Calc & Planner" })] })] }), _jsx("div", { className: "hidden md:block flex-1 max-w-xl px-8", children: _jsx(HeaderGraph, { items: items, systemVoltage: battery.voltage }) }), _jsxs("div", { className: "text-right", children: [_jsxs("div", { className: `app-header-font text-4xl flex items-baseline justify-end gap-1.5 ${netKwh >= 0 ? 'text-emerald-400' : 'text-rose-400'}`, children: [_jsxs("span", { children: [netKwh >= 0 ? '+' : '', netKwh.toFixed(1)] }), _jsx("span", { className: "text-[10px] text-slate-600 font-black uppercase tracking-tighter", children: "kWh" })] }), _jsx("div", { className: "text-[8px] text-slate-700 font-black uppercase tracking-[0.2em] mt-1", children: "24HR POWER" })] })] }) }), _jsxs("main", {
       className: "max-w-[98%] mx-auto w-full p-6 grid grid-cols-1 lg:grid-cols-[1fr_minmax(150px,12%)] gap-8", children: [_jsxs("div", {
