@@ -44,11 +44,11 @@ const SOURCE_TOOLS = [{
 }];
 
 export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps' | 'none' = 'none'): Chat => {
-  let model = 'gemini-1.5-flash';
+  let model = 'gemini-2.5-flash-lite';
 
   if (mode === 'load' || mode === 'source') {
     return ai.chats.create({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash-lite',
       config: {
         systemInstruction: `You are Spec Asst. Your ONLY job is to extract technical specs and CALL TOOLS.
         DO NOT CHAT. DO NOT USE JSON. DO NOT USE MARKDOWN. DO NOT SPEAK.
@@ -90,7 +90,7 @@ export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps
 export const getSolarForecast = async (location: string) => {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash-lite',
       contents: `Solar forecast for ${location}.`,
       config: {
         responseMimeType: "application/json",
@@ -111,7 +111,7 @@ export const getSolarForecast = async (location: string) => {
 export const getDynamicSuggestions = async (systemSummary: string) => {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash-lite',
       contents: `Based on: ${systemSummary}. 3 brief diagnostic questions.`,
       config: {
         responseMimeType: "application/json",

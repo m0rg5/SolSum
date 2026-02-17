@@ -103,7 +103,7 @@ const ChatBot: React.FC<ChatBotProps> = ({
       // Reset chat pane when switching modes
       if (modeProp === 'zoneSizing') {
         setShowChatPane(false);
-        setIsMaximized(true);
+        setIsMaximized(false);
       }
     }
   }, [modeProp]);
