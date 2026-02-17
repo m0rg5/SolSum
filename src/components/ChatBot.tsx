@@ -73,7 +73,7 @@ const ChatBot: React.FC<ChatBotProps> = ({
   onAddLoadItem,
   onAddChargingSource
 }) => {
-  const [isMaximized, setIsMaximized] = useState(true);
+  const [isMaximized, setIsMaximized] = useState(false);
   const [mode, setMode] = useState<ChatMode>('general');
   const [currentZoneSection, setCurrentZoneSection] = useState<ZoneSizingSection>(zoneSizingSection);
   const [showChatPane, setShowChatPane] = useState(false);

@@ -44,7 +44,7 @@ const SOURCE_TOOLS = [{
 }];
 
 export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps' | 'none' = 'none'): Chat => {
-  let model = 'gemini-1.5-pro';
+  let model = 'gemini-1.5-flash';
 
   if (mode === 'load' || mode === 'source') {
     return ai.chats.create({
