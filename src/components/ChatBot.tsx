@@ -265,7 +265,7 @@ const ChatBot: React.FC<ChatBotProps> = ({
         if (!silent) setMessages(prev => prev.filter(m => m.text !== ''));
       }
     } catch (error: any) {
-      if (!silent) setMessages(prev => [...prev, { role: 'model', text: "Session Reset.", isError: true, timestamp: new Date() }]);
+      if (!silent) setMessages(prev => [...prev, { role: 'model', text: `Error: ${error.message || 'Unknown API Error'}`, isError: true, timestamp: new Date() }]);
       chatSessionRef.current = null;
     } finally {
       setIsTyping(false);
