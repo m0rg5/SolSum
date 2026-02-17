@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, Type, Chat, Modality } from "@google/genai";
+import { GoogleGenAI, Type, Chat, Modality, FunctionCallingConfigMode } from "@google/genai";
 import { ChatMode } from "../types";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
@@ -55,7 +55,13 @@ export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps
         If the user provides a product name, model number, or technical description, you MUST IMMEDIATELY use the tool.
         Never explain what you are doing. Never output text. ONLY output the tool call.
         If a specific wattage isn't known, provide a realistic industry estimate based on the product type.`,
-        tools: mode === 'load' ? LOAD_TOOLS : SOURCE_TOOLS
+        tools: mode === 'load' ? LOAD_TOOLS : SOURCE_TOOLS,
+        toolConfig: {
+          functionCallingConfig: {
+            mode: FunctionCallingConfigMode.ANY,
+            allowedFunctionNames: mode === 'load' ? ['addLoadItem'] : ['addChargingSource']
+          }
+        }
       }
     });
   }
@@ -76,8 +82,7 @@ export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps
           expanded: { type: Type.STRING }
         },
         required: ["summary", "expanded"]
-      },
-      thinkingConfig: { thinkingBudget: 32768 }
+      }
     }
   });
 };
