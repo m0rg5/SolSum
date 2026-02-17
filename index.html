@@ -159,7 +159,19 @@
       }
     }
   </script>
-
+  <script>
+    window.onerror = function (msg, url, line, col, error) {
+      var root = document.getElementById('root');
+      if (root) {
+        root.innerHTML = '<div style="color: #f87171; padding: 30px; font-family: sans-serif; background: #0f172a; min-height: 100vh;">' +
+          '<h2 style="font-size: 20px; font-weight: 900; margin-bottom: 20px;">\u26A0\uFE0F RUNTIME CRASH</h2>' +
+          '<pre style="white-space: pre-wrap; font-size: 13px; font-family: monospace; background: #020617; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; color: #cbd5e1;">' +
+          msg + '\n\n' + (error && error.stack ? error.stack : 'No stack trace') +
+          '</pre></div>';
+      }
+      return false;
+    };
+  </script>
 </head>
 
 <body class="bg-slate-900 text-slate-100 antialiased font-sans">
