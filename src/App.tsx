@@ -1,15 +1,14 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { INITIAL_DATA, INITIAL_CHARGING, INITIAL_BATTERY } from '@/constants';
-import { LoadCategory, ChatMode, ZoneSizingSection } from '@/types';
-import { calculateSystemTotals } from '@/services/powerLogic';
-import { geocodeLocation, fetchNowSolarPSH, fetchMonthAvgSolarPSH } from '@/services/weatherService';
-import EnergyTable from '@/components/EnergyTable';
-import ChargingTable from '@/components/ChargingTable';
-import SummaryPanel from '@/components/SummaryPanel';
-import ChatBot from '@/components/ChatBot';
-import HeaderGraph from '@/components/HeaderGraph';
-import { LocationAutocomplete } from '@/components/LocationAutocomplete';
+import { INITIAL_DATA, INITIAL_CHARGING, INITIAL_BATTERY } from './constants';
+import { LoadCategory, ChatMode, ZoneSizingSection } from './types';
+import { calculateSystemTotals } from './services/powerLogic';
+import { geocodeLocation, fetchNowSolarPSH, fetchMonthAvgSolarPSH } from './services/weatherService';
+import EnergyTable from './components/EnergyTable';
+import ChargingTable from './components/ChargingTable';
+import SummaryPanel from './components/SummaryPanel';
+import ChatBot from './components/ChatBot';
+import HeaderGraph from './components/HeaderGraph';
+import { LocationAutocomplete } from './components/LocationAutocomplete';
 const STORAGE_KEY = "solsum_state_v2_1";
 const STORAGE_SCHEMA_VERSION = "2.1";
 const FORECAST_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
