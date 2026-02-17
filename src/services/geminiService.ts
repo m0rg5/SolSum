@@ -44,11 +44,12 @@ const SOURCE_TOOLS = [{
 }];
 
 export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps' | 'none' = 'none'): Chat => {
-  let model = 'gemini-2.5-flash-lite';
+  const model = 'gemini-2.0-flash';
+  console.log(`[GeminiService] Creating chat session for mode: ${mode} using model: ${model}`);
 
   if (mode === 'load' || mode === 'source') {
     return ai.chats.create({
-      model: 'gemini-2.5-flash-lite',
+      model,
       config: {
         systemInstruction: `You are Spec Asst. Your ONLY job is to extract technical specs and CALL TOOLS.
         DO NOT CHAT. DO NOT USE JSON. DO NOT USE MARKDOWN. DO NOT SPEAK.
@@ -89,8 +90,10 @@ export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps
 
 export const getSolarForecast = async (location: string) => {
   try {
+    const model = 'gemini-2.0-flash';
+    console.log(`[GeminiService] Fetching forecast for: ${location} using model: ${model}`);
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model,
       contents: `Solar forecast for ${location}.`,
       config: {
         responseMimeType: "application/json",
@@ -110,8 +113,10 @@ export const getSolarForecast = async (location: string) => {
 
 export const getDynamicSuggestions = async (systemSummary: string) => {
   try {
+    const model = 'gemini-2.0-flash';
+    console.log(`[GeminiService] Getting suggestions using model: ${model}`);
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model,
       contents: `Based on: ${systemSummary}. 3 brief diagnostic questions.`,
       config: {
         responseMimeType: "application/json",
