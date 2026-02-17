@@ -2,7 +2,8 @@
 import { GoogleGenAI, Type, Chat, Modality } from "@google/genai";
 import { ChatMode } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+const ai = new GoogleGenAI({ apiKey });
 
 const LOAD_TOOLS = [{
   functionDeclarations: [{
@@ -44,7 +45,7 @@ const SOURCE_TOOLS = [{
 
 export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps' | 'none' = 'none'): Chat => {
   let model = 'gemini-3-pro-preview';
-  
+
   if (mode === 'load' || mode === 'source') {
     return ai.chats.create({
       model: 'gemini-3-flash-preview',
