@@ -416,25 +416,25 @@ const ChatBot: React.FC<ChatBotProps> = ({
               ))}
               {pendingToolCall && (
                 <div className="mx-2 mt-4 rounded-2xl shadow-[0_0_40px_rgba(147,51,234,0.3)] overflow-hidden border-2 bg-slate-950 border-purple-500/60 animate-bounce-subtle">
-                  <div className="px-4 py-2.5 bg-purple-900/30 border-b border-purple-500/30 text-[9px] font-black uppercase tracking-widest flex items-center justify-between">
-                    <span className="text-white flex items-center gap-2"><span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span> Action Required</span>
-                    <span className="text-purple-400/60">{pendingToolCall.name}</span>
+                  <div className="px-3 py-1.5 bg-purple-900/30 border-b border-purple-500/30 text-[8px] font-black uppercase tracking-widest flex items-center justify-between">
+                    <span className="text-white flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse"></span> Action Required</span>
+                    <span className="text-purple-400/50 text-[7px]">{pendingToolCall.name}</span>
                   </div>
-                  <div className="p-5 space-y-4">
-                    <h4 className="text-white font-black text-lg tracking-tight">{String(pendingToolCall.args?.['name'] || 'Item')}</h4>
-                    <div className="grid grid-cols-2 gap-2.5">
+                  <div className="p-3 space-y-2.5">
+                    <h4 className="text-white font-black text-xs tracking-tight">{String(pendingToolCall.args?.['name'] || 'Item')}</h4>
+                    <div className="grid grid-cols-2 gap-1.5">
                       {Object.entries(pendingToolCall.args || {}).map(([k, v]) => k !== 'name' && (
-                        <div key={k} className="bg-purple-950/40 rounded-lg p-3 border border-purple-500/20">
-                          <span className="text-purple-400 text-[8px] font-black uppercase tracking-widest block mb-1">{k}</span>
-                          <span className="text-white font-mono text-sm font-bold">{String(v)}</span>
+                        <div key={k} className="bg-purple-950/40 rounded-md px-2.5 py-1.5 border border-purple-500/20">
+                          <span className="text-purple-400 text-[7px] font-black uppercase tracking-widest block mb-0.5">{k}</span>
+                          <span className="text-white font-mono text-[11px] font-bold">{String(v)}</span>
                         </div>
                       ))}
                     </div>
-                    <div className="flex gap-3 pt-1">
-                      <button onClick={handleCancelAction} className="flex-1 py-3 text-[10px] font-black uppercase text-purple-300 hover:bg-purple-900/20 rounded-xl border border-purple-500/30 transition-all tracking-widest">
+                    <div className="flex gap-2 pt-0.5">
+                      <button onClick={handleCancelAction} className="flex-1 py-2 text-[9px] font-black uppercase text-purple-300 hover:bg-purple-900/20 rounded-lg border border-purple-500/30 transition-all tracking-widest">
                         Cancel
                       </button>
-                      <button onClick={handleConfirmAction} className="flex-1 py-3 text-[10px] font-black uppercase bg-purple-600 hover:bg-purple-500 text-white rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.5)] transition-all active:scale-95 tracking-widest hover:shadow-[0_0_30px_rgba(147,51,234,0.7)] border border-purple-400/30">
+                      <button onClick={handleConfirmAction} className="flex-1 py-2 text-[9px] font-black uppercase bg-purple-600 hover:bg-purple-500 text-white rounded-lg shadow-[0_0_20px_rgba(147,51,234,0.5)] transition-all active:scale-95 tracking-widest border border-purple-400/30">
                         Confirm Add
                       </button>
                     </div>
