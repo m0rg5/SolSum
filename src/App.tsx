@@ -244,12 +244,29 @@ const App = () => {
           setItems(data.items.map((i) => ({ ...i, enabled: i.enabled ?? true })));
         if (data.charging)
           setCharging(data.charging.map((c) => ({ ...c, enabled: c.enabled ?? true })));
-        if (data.battery)
-          setBattery(data.battery);
+        if (data.battery) {
+          const now = new Date();
+          const defaultMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
+          let mergedBat = {
+            ...INITIAL_BATTERY,
+            forecastMode: 'now',
+            forecastMonth: defaultMonth,
+            ...data.battery
+          };
+
+          // Compatibility fix for month-only strings
+          if (mergedBat.forecastMonth && mergedBat.forecastMonth.split('-').length === 2) {
+            mergedBat.forecastMonth = `${mergedBat.forecastMonth}-15`;
+          }
+
+          setBattery(mergedBat);
+        }
         alert(`Config v${data.version || '?'} imported.`);
       }
       catch (err) {
         console.error("Import failed:", err);
+        alert("Import failed: Invalid JSON or incompatible format.");
       }
     };
     reader.readAsText(file);
