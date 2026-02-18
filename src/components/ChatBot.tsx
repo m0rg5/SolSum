@@ -120,13 +120,20 @@ const ChatBot: React.FC<ChatBotProps> = ({
   useEffect(() => {
     if (isOpen && mode !== 'zoneSizing' && !chatSessionRef.current && !initError) {
       try {
-        chatSessionRef.current = createChatSession(mode);
+        const session = createChatSession(mode);
+        chatSessionRef.current = session;
+
+        // If we had a pending context lookup, trigger it now
+        if (contextItem && lastProcessedContextRef.current !== contextItem.id) {
+          lastProcessedContextRef.current = contextItem.id;
+          handleSubmit(null, `Technical extraction for: "${contextItem.name}".`, true);
+        }
       } catch (err: any) {
         console.error("ChatBot Init Error:", err);
         setInitError(err.message || "Failed to initialize AI");
       }
     }
-  }, [isOpen, mode, initError]);
+  }, [isOpen, mode, initError, contextItem]);
 
   // Set initial greeting
   useEffect(() => {
