@@ -33,12 +33,18 @@ const App = () => {
   };
   const savedData = useMemo(() => getSavedData(), []);
   const [items, setItems] = useState(() => {
-    const data = savedData?.items || INITIAL_DATA;
-    return data.map((i) => ({ ...i, enabled: i.enabled ?? true }));
+    const rawData = savedData?.items || INITIAL_DATA;
+    const data = Array.isArray(rawData) ? rawData : INITIAL_DATA;
+    return data
+      .filter(i => i && typeof i === 'object')
+      .map((i) => ({ ...i, enabled: i.enabled ?? true, id: i.id || Math.random().toString(36).substr(2, 9) }));
   });
   const [charging, setCharging] = useState(() => {
-    const data = savedData?.charging || INITIAL_CHARGING;
-    return data.map((c) => ({ ...c, enabled: c.enabled ?? true }));
+    const rawData = savedData?.charging || INITIAL_CHARGING;
+    const data = Array.isArray(rawData) ? rawData : INITIAL_CHARGING;
+    return data
+      .filter(c => c && typeof c === 'object')
+      .map((c) => ({ ...c, enabled: c.enabled ?? true, id: c.id || Math.random().toString(36).substr(2, 9) }));
   });
   const [battery, setBattery] = useState(() => {
     const now = new Date();
@@ -240,11 +246,17 @@ const App = () => {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(String(event.target?.result));
-        if (data.items)
-          setItems(data.items.map((i) => ({ ...i, enabled: i.enabled ?? true })));
-        if (data.charging)
-          setCharging(data.charging.map((c) => ({ ...c, enabled: c.enabled ?? true })));
-        if (data.battery) {
+        if (data.items && Array.isArray(data.items)) {
+          setItems(data.items
+            .filter(i => i && typeof i === 'object')
+            .map((i) => ({ ...i, enabled: i.enabled ?? true, id: i.id || Math.random().toString(36).substr(2, 9) })));
+        }
+        if (data.charging && Array.isArray(data.charging)) {
+          setCharging(data.charging
+            .filter(c => c && typeof c === 'object')
+            .map((c) => ({ ...c, enabled: c.enabled ?? true, id: c.id || Math.random().toString(36).substr(2, 9) })));
+        }
+        if (data.battery && typeof data.battery === 'object') {
           const now = new Date();
           const defaultMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
 
@@ -274,7 +286,7 @@ const App = () => {
   };
   const netKwh = totals.netWh / 1000;
   return (_jsxs("div", {
-    className: "min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans app-root", children: [_jsx("header", { className: "bg-slate-950 border-b border-slate-800 sticky top-0 z-40 shadow-2xl pb-3 pt-2.5", children: _jsxs("div", { className: "max-w-[98%] mx-auto flex flex-col lg:flex-row items-center justify-between px-6 gap-6", children: [_jsxs("div", { className: "flex items-center gap-3 shrink-0", children: [_jsx("div", { className: "text-[40px] leading-none", children: "\u2600\uFE0F" }), _jsxs("div", { children: [_jsx("h1", { className: "app-header-font text-[1.6rem] text-white", children: "Sol Sum" }), _jsx("p", { className: "text-slate-500 text-[8px] font-semibold uppercase tracking-[0.1em] mt-0.5", children: "Solar & Elec Planner v2.7" })] })] }), _jsx("div", { className: "hidden md:block flex-1 max-w-xl px-8", children: _jsx(HeaderGraph, { items: items, systemVoltage: battery.voltage }) }), _jsxs("div", { className: "text-right", children: [_jsxs("div", { className: `app-header-font text-4xl flex items-baseline justify-end gap-1.5 ${netKwh >= 0 ? 'text-emerald-400' : 'text-rose-400'}`, children: [_jsxs("span", { children: [netKwh >= 0 ? '+' : '', netKwh.toFixed(1)] }), _jsx("span", { className: "text-[10px] text-slate-600 font-black uppercase tracking-tighter", children: "kWh" })] }), _jsx("div", { className: "text-[8px] text-slate-700 font-black uppercase tracking-[0.2em] mt-1", children: "24HR POWER" })] })] }) }), _jsxs("main", {
+    className: "min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans app-root", children: [_jsx("header", { className: "bg-slate-950 border-b border-slate-800 sticky top-0 z-40 shadow-2xl pb-3 pt-2.5", children: _jsxs("div", { className: "max-w-[98%] mx-auto flex flex-col lg:flex-row items-center justify-between px-6 gap-6", children: [_jsxs("div", { className: "flex items-center gap-3 shrink-0", children: [_jsx("div", { className: "text-[40px] leading-none", children: "\u2600\uFE0F" }), _jsxs("div", { children: [_jsx("h1", { className: "app-header-font text-[1.6rem] text-white", children: "Sol Sum" }), _jsx("p", { className: "text-slate-500 text-[8px] font-semibold uppercase tracking-[0.1em] mt-0.5", children: "Solar & Elec Planner v2.9" })] })] }), _jsx("div", { className: "hidden md:block flex-1 max-w-xl px-8", children: _jsx(HeaderGraph, { items: items, systemVoltage: battery.voltage }) }), _jsxs("div", { className: "text-right", children: [_jsxs("div", { className: `app-header-font text-4xl flex items-baseline justify-end gap-1.5 ${netKwh >= 0 ? 'text-emerald-400' : 'text-rose-400'}`, children: [_jsxs("span", { children: [netKwh >= 0 ? '+' : '', netKwh.toFixed(1)] }), _jsx("span", { className: "text-[10px] text-slate-600 font-black uppercase tracking-tighter", children: "kWh" })] }), _jsx("div", { className: "text-[8px] text-slate-700 font-black uppercase tracking-[0.2em] mt-1", children: "24HR POWER" })] })] }) }), _jsxs("main", {
       className: "max-w-[98%] mx-auto w-full p-6 grid grid-cols-1 lg:grid-cols-[1fr_minmax(150px,12%)] gap-8", children: [_jsxs("div", {
         className: "space-y-6 min-w-0", children: [_jsx("section", {
           className: "pb-0", children: _jsxs("div", {
