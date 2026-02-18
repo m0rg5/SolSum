@@ -2,8 +2,13 @@
 import { GoogleGenAI, Type, Chat, Modality, FunctionCallingConfigMode } from "@google/genai";
 import { ChatMode } from "../types";
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-const genAI = new GoogleGenAI(apiKey);
+const getClient = () => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("VITE_GEMINI_API_KEY is not set. Please add it to your environment variables.");
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 const LOAD_TOOLS = [{
   functionDeclarations: [{
@@ -44,34 +49,32 @@ const SOURCE_TOOLS = [{
 }];
 
 export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps' | 'none' = 'none'): Chat => {
-  const modelName = 'gemini-2.5-flash-lite';
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-  });
+  const client = getClient();
+  const model = 'gemini-2.5-flash-lite';
 
   if (mode === 'load' || mode === 'source') {
-    return model.startChat({
-      history: [],
-      generationConfig: {
+    return client.chats.create({
+      model,
+      config: {
         systemInstruction: `You are Spec Asst. Your ONLY job is to extract technical specs and CALL TOOLS.
         DO NOT CHAT. DO NOT USE JSON. DO NOT USE MARKDOWN. DO NOT SPEAK.
         If the user provides a product name, model number, or technical description, you MUST IMMEDIATELY use the tool.
         Never explain what you are doing. Never output text. ONLY output the tool call.
         If a specific wattage isn't known, provide a realistic industry estimate based on the product type.`,
-      },
-      tools: mode === 'load' ? LOAD_TOOLS : SOURCE_TOOLS,
-      toolConfig: {
-        functionCallingConfig: {
-          mode: FunctionCallingConfigMode.ANY,
-          allowedFunctionNames: mode === 'load' ? ['addLoadItem'] : ['addChargingSource']
+        tools: mode === 'load' ? LOAD_TOOLS : SOURCE_TOOLS,
+        toolConfig: {
+          functionCallingConfig: {
+            mode: FunctionCallingConfigMode.ANY,
+            allowedFunctionNames: mode === 'load' ? ['addLoadItem'] : ['addChargingSource']
+          }
         }
       }
     });
   }
 
-  return model.startChat({
-    history: [],
-    generationConfig: {
+  return client.chats.create({
+    model,
+    config: {
       systemInstruction: `You are Sol Sum AI. You MUST respond in JSON format.
       Every response must have:
       - "summary": A very brief 1-2 sentence overview of the answer.
@@ -92,10 +95,11 @@ export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps
 
 export const getSolarForecast = async (location: string) => {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-    const response = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: `Solar forecast for ${location}.` }] }],
-      generationConfig: {
+    const client = getClient();
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash-lite',
+      contents: `Solar forecast for ${location}.`,
+      config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -107,16 +111,17 @@ export const getSolarForecast = async (location: string) => {
         }
       }
     });
-    return JSON.parse(response.response.text() || '{}');
+    return JSON.parse(response.text || '{}');
   } catch { return null; }
 };
 
 export const getDynamicSuggestions = async (systemSummary: string) => {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-    const response = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: `Based on: ${systemSummary}. 3 brief diagnostic questions.` }] }],
-      generationConfig: {
+    const client = getClient();
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash-lite',
+      contents: `Based on: ${systemSummary}. 3 brief diagnostic questions.`,
+      config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -124,6 +129,6 @@ export const getDynamicSuggestions = async (systemSummary: string) => {
         }
       }
     });
-    return JSON.parse(response.response.text() || '[]');
+    return JSON.parse(response.text || '[]');
   } catch { return ["System Health?", "Load Audit?", "Cable Check?"]; }
 };
