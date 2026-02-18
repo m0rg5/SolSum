@@ -115,27 +115,37 @@ const ChatBot: React.FC<ChatBotProps> = ({
     }
   }, [zoneSizingSection]);
 
+  // Create session only once per mode/open state
   useEffect(() => {
-    if (isOpen && mode !== 'zoneSizing') {
-      if (!chatSessionRef.current) {
-        chatSessionRef.current = createChatSession(mode);
-      }
-      if (messages.length === 0) {
-        const greetingText = mode === 'general'
-          ? "I'm a helpful assistant. Ask me about your system or add items."
-          : (mode === 'load'
-            ? 'Ready to add **Load Items**. Paste a Model Number or Name.'
-            : 'Ready to add **Sources**. Paste a Panel Model or Specs.');
-        setMessages([{ role: 'model', text: greetingText, summary: greetingText, expanded: greetingText, timestamp: new Date(), category: mode }]);
-      }
+    if (isOpen && mode !== 'zoneSizing' && !chatSessionRef.current) {
+      chatSessionRef.current = createChatSession(mode);
     }
-  }, [isOpen, mode, messages.length]);
+  }, [isOpen, mode]);
 
+  // Set initial greeting
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      const greetingText = mode === 'general'
+        ? "I'm a helpful assistant. Ask me about your system or add items."
+        : (mode === 'load'
+          ? 'Ready to add **Load Items**. Paste a Model Number or Name.'
+          : 'Ready to add **Sources**. Paste a Panel Model or Specs.');
+      setMessages([{
+        role: 'model',
+        text: greetingText,
+        summary: greetingText,
+        expanded: greetingText,
+        timestamp: new Date(),
+        category: 'general'
+      }]);
+    }
+  }, [isOpen, mode]);
+
+  // Handle context items (🤖 ➕)
   useEffect(() => {
     if (isOpen && contextItem && chatSessionRef.current && lastProcessedContextRef.current !== contextItem.id) {
       lastProcessedContextRef.current = contextItem.id;
       const triggerLookup = async () => {
-        // Send internal technical instruction silently without history entry
         await handleSubmit(null, `Technical extraction for: "${contextItem.name}".`, true);
       };
       triggerLookup();
