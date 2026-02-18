@@ -266,23 +266,35 @@ const ChatBot: React.FC<ChatBotProps> = ({
         if (c.text && !silent) {
           fullRawText += c.text;
           if (mode === 'general') {
+            // General mode: try to parse as JSON {summary, expanded} first
             try {
               const parsed = JSON.parse(fullRawText);
-              setMessages(prev => {
-                const newMsgs = [...prev];
-                const last = newMsgs[newMsgs.length - 1];
-                if (last && last.role === 'model') {
-                  last.summary = parsed.summary;
-                  last.expanded = parsed.expanded;
-                  last.text = parsed.summary;
-                }
-                return newMsgs;
-              });
+              if (parsed.summary) {
+                setMessages(prev => {
+                  const newMsgs = [...prev];
+                  const last = newMsgs[newMsgs.length - 1];
+                  if (last && last.role === 'model') {
+                    last.summary = parsed.summary;
+                    last.expanded = parsed.expanded;
+                    last.text = parsed.summary;
+                  }
+                  return newMsgs;
+                });
+              } else {
+                // JSON but not our expected format — show as text
+                setMessages(prev => {
+                  const newMsgs = [...prev];
+                  const last = newMsgs[newMsgs.length - 1];
+                  if (last && last.role === 'model') last.text = fullRawText;
+                  return newMsgs;
+                });
+              }
             } catch {
+              // Partial JSON or plain text — show streaming text
               setMessages(prev => {
                 const newMsgs = [...prev];
                 const last = newMsgs[newMsgs.length - 1];
-                if (last && last.role === 'model') last.text = "...";
+                if (last && last.role === 'model') last.text = fullRawText;
                 return newMsgs;
               });
             }
@@ -294,6 +306,26 @@ const ChatBot: React.FC<ChatBotProps> = ({
               return newMsgs;
             });
           }
+        }
+      }
+      // After streaming completes, try one final JSON parse for general mode
+      if (!toolCall && mode === 'general' && fullRawText && !silent) {
+        try {
+          const parsed = JSON.parse(fullRawText);
+          if (parsed.summary) {
+            setMessages(prev => {
+              const newMsgs = [...prev];
+              const last = newMsgs[newMsgs.length - 1];
+              if (last && last.role === 'model') {
+                last.summary = parsed.summary;
+                last.expanded = parsed.expanded;
+                last.text = parsed.summary;
+              }
+              return newMsgs;
+            });
+          }
+        } catch {
+          // Not JSON — leave the plain text as-is (already set during streaming)
         }
       }
       if (toolCall) {

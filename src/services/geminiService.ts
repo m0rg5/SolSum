@@ -7,9 +7,45 @@ const getClient = () => {
   if (!apiKey) {
     throw new Error("VITE_GEMINI_API_KEY is not set. Please add it to your environment variables.");
   }
-  // @google/genai expects an options object with apiKey
   return new GoogleGenAI({ apiKey });
 };
+
+const ALL_TOOLS = [{
+  functionDeclarations: [
+    {
+      name: 'addLoadItem',
+      description: 'Add a new electrical load to the solar system based on product specifications. Use when the user provides a product name, model number, or appliance.',
+      parameters: {
+        type: Type.OBJECT,
+        properties: {
+          name: { type: Type.STRING, description: 'Model/Name of the device' },
+          category: { type: Type.STRING, enum: ['DC Loads (Native/DCDC)', 'AC Loads (Inverter)', 'System Overhead'] },
+          watts: { type: Type.NUMBER, description: 'Power consumption in Watts' },
+          hours: { type: Type.NUMBER, description: 'Estimated hours used per day' },
+          dutyCycle: { type: Type.NUMBER, description: 'Duty cycle percentage (1-100)' },
+          notes: { type: Type.STRING, description: 'Brief technical spec note' }
+        },
+        required: ['name', 'category', 'watts', 'hours']
+      }
+    },
+    {
+      name: 'addChargingSource',
+      description: 'Add a new charging source (solar panel, alternator, etc) to the system. Use when the user provides a solar panel model, alternator, or other power source.',
+      parameters: {
+        type: Type.OBJECT,
+        properties: {
+          name: { type: Type.STRING, description: 'Model/Name of the panel or source' },
+          input: { type: Type.NUMBER, description: 'Input value (Watts or Amps)' },
+          unit: { type: Type.STRING, enum: ['W', 'A'] },
+          hours: { type: Type.NUMBER, description: 'Generation hours per day' },
+          efficiency: { type: Type.NUMBER, description: 'Efficiency decimal (0.1 to 1.0)' },
+          type: { type: Type.STRING, enum: ['solar', 'alternator', 'generator', 'mppt', 'charger', 'wind', 'other'] }
+        },
+        required: ['name', 'input', 'unit', 'type']
+      }
+    }
+  ]
+}];
 
 const LOAD_TOOLS = [{
   functionDeclarations: [{
@@ -51,11 +87,12 @@ const SOURCE_TOOLS = [{
 
 export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps' | 'none' = 'none'): Chat => {
   const client = getClient();
-  const model = 'gemini-2.5-flash-lite';
+  const specModel = 'gemini-2.5-flash';
+  const generalModel = 'gemini-2.5-flash';
 
   if (mode === 'load' || mode === 'source') {
     return client.chats.create({
-      model,
+      model: specModel,
       config: {
         systemInstruction: `You are Spec Asst. Your ONLY job is to extract technical specs and CALL TOOLS.
         DO NOT CHAT. DO NOT USE JSON. DO NOT USE MARKDOWN. DO NOT SPEAK.
@@ -73,22 +110,24 @@ export const createChatSession = (mode: ChatMode, useGrounding: 'search' | 'maps
     });
   }
 
+  // General mode: respond in JSON but ALSO has tools available.
+  // If the user pastes a model number, the AI will call addLoadItem or addChargingSource.
+  // If the user asks a question, the AI will respond with {summary, expanded} JSON.
   return client.chats.create({
-    model,
+    model: generalModel,
     config: {
-      systemInstruction: `You are Sol Sum AI. You MUST respond in JSON format.
-      Every response must have:
-      - "summary": A very brief 1-2 sentence overview of the answer.
-      - "expanded": A detailed, distinct, multi-paragraph markdown explanation.
-      Avoid operational sci-fi talk. Be technical and concise.`,
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          summary: { type: Type.STRING },
-          expanded: { type: Type.STRING }
-        },
-        required: ["summary", "expanded"]
+      systemInstruction: `You are Sol Sum AI, a solar & electrical system planning assistant.
+You have two capabilities:
+1. ANSWER QUESTIONS: When the user asks a question, respond in JSON format with:
+   - "summary": A brief 1-2 sentence overview.
+   - "expanded": A detailed multi-paragraph markdown explanation.
+2. ADD ITEMS: When the user provides a product name, model number, or technical spec (e.g. "TSM-475NEG9RH.28", "Victron 100/30", "Engel 40L fridge"), you MUST use the addLoadItem or addChargingSource tool to extract specs and add it to their system. Solar panels and power sources use addChargingSource. Appliances and electrical loads use addLoadItem.
+Be technical and concise. Avoid sci-fi talk.`,
+      tools: ALL_TOOLS,
+      toolConfig: {
+        functionCallingConfig: {
+          mode: FunctionCallingConfigMode.AUTO
+        }
       }
     }
   });
@@ -98,7 +137,7 @@ export const getSolarForecast = async (location: string) => {
   try {
     const client = getClient();
     const response = await client.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: 'gemini-2.5-flash',
       contents: `Solar forecast for ${location}.`,
       config: {
         responseMimeType: "application/json",
@@ -120,7 +159,7 @@ export const getDynamicSuggestions = async (systemSummary: string) => {
   try {
     const client = getClient();
     const response = await client.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: 'gemini-2.5-flash',
       contents: `Based on: ${systemSummary}. 3 brief diagnostic questions.`,
       config: {
         responseMimeType: "application/json",
