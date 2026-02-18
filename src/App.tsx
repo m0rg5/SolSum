@@ -224,16 +224,52 @@ const App = () => {
     setBattery(prev => ({ ...prev, [field]: value }));
   }, []);
   const handleExport = () => {
-    const data = { version: STORAGE_SCHEMA_VERSION, items, charging, battery };
+    // Sanitize data before export to prevent malformed files
+    const sanitizedItems = items
+      .filter(i => i && typeof i === 'object')
+      .map(i => ({
+        ...i,
+        enabled: i.enabled ?? true,
+        id: i.id || Math.random().toString(36).substr(2, 9)
+      }));
+
+    const sanitizedCharging = charging
+      .filter(c => c && typeof c === 'object')
+      .map(c => ({
+        ...c,
+        unit: 'W', // Standardize to Watts for internal consistency
+        autoSolar: c.autoSolar ?? false,
+        enabled: c.enabled ?? true,
+        id: c.id || Math.random().toString(36).substr(2, 9)
+      }));
+
+    const sanitizedBattery = { ...battery };
+    if (sanitizedBattery.forecast && sanitizedBattery.forecast.error) {
+      // Clear zombie forecast data if there's an error
+      sanitizedBattery.forecast = {
+        ...sanitizedBattery.forecast,
+        nowHours: undefined,
+        sunnyHours: undefined,
+        cloudyHours: undefined
+      };
+    }
+
+    const data = {
+      version: STORAGE_SCHEMA_VERSION,
+      items: sanitizedItems,
+      charging: sanitizedCharging,
+      battery: sanitizedBattery
+    };
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `solsum_v${STORAGE_SCHEMA_VERSION}_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a); // Required for Firefox/some browsers
+    document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a); // Cleanup
-    URL.revokeObjectURL(url); // Prevent memory leaks
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
   const handleTriggerImport = () => {
     fileInputRef.current?.click();

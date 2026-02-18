@@ -1,0 +1,379 @@
+{
+    "version": "2.8",
+    "items": [
+        {
+            "id": "ijsnusmqb",
+            "quantity": 1,
+            "notes": "Estimated 120W charging rate for approx 5 hours to fully charge 576Wh battery.",
+            "watts": 80,
+            "name": "48V 12Ah E-bike Charger (DCDC)",
+            "dutyCycle": 100,
+            "category": "DC Loads (Native/DCDC)",
+            "hours": 5,
+            "enabled": true
+        },
+        {
+            "id": "c1",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "DC Air Con",
+            "quantity": 1,
+            "watts": 960,
+            "hours": 8,
+            "dutyCycle": 40,
+            "notes": "High drain. Cycles on thermostat.",
+            "enabled": true
+        },
+        {
+            "id": "jftvvn1ll",
+            "quantity": 1,
+            "watts": 25,
+            "dutyCycle": 40,
+            "notes": "Electrical consumption for fan/pump is approx 25W; 2kW is the thermal rating.",
+            "name": "Diesel Heater 2kw",
+            "category": "DC Loads (Native/DCDC)",
+            "hours": 9,
+            "enabled": true
+        },
+        {
+            "id": "4s320ljo5",
+            "quantity": 1,
+            "dutyCycle": 35,
+            "hours": 6,
+            "category": "DC Loads (Native/DCDC)",
+            "notes": "Powered via DC-DC conversion. 200W peak, 30% duty cycle for average laptop/peripheral use.",
+            "watts": 200,
+            "name": "200W Laptop Dock (20V DC)",
+            "enabled": true
+        },
+        {
+            "id": "o3",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "MacBook Air",
+            "quantity": 1,
+            "watts": 30,
+            "hours": 3,
+            "dutyCycle": 50,
+            "notes": "Charging (via UDF)",
+            "enabled": false
+        },
+        {
+            "id": "o1",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "Mac Mini (M4)",
+            "quantity": 1,
+            "watts": 40,
+            "hours": 8,
+            "dutyCycle": 50,
+            "notes": "Workstation (via UDF)",
+            "enabled": false
+        },
+        {
+            "id": "o2",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "32\" 4k Monitor (USB-C)",
+            "quantity": 1,
+            "watts": 50,
+            "hours": 8,
+            "dutyCycle": 80,
+            "notes": "(via UDF)",
+            "enabled": false
+        },
+        {
+            "id": "h1",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "Fridge (NCC-80)",
+            "quantity": 1,
+            "watts": 50,
+            "hours": 24,
+            "dutyCycle": 40,
+            "notes": "33% Duty Cycle factored",
+            "enabled": true
+        },
+        {
+            "id": "k1",
+            "category": "AC Loads (Inverter)",
+            "name": "Induction cooker",
+            "quantity": 1,
+            "watts": 2200,
+            "hours": 0.4,
+            "dutyCycle": 100,
+            "notes": "Avg dinner session (via Inv1)",
+            "enabled": true
+        },
+        {
+            "id": "bbbz2tfpc",
+            "quantity": 1,
+            "watts": 1900,
+            "dutyCycle": 100,
+            "hours": 0.01,
+            "notes": "Standard 1500W rapid-boil kettle; estimated 12 minutes daily use.",
+            "category": "AC Loads (Inverter)",
+            "name": "Electric Kettle",
+            "enabled": true
+        },
+        {
+            "id": "k2",
+            "category": "AC Loads (Inverter)",
+            "name": "Ninja Oven",
+            "quantity": 1,
+            "watts": 1800,
+            "hours": 0.15,
+            "dutyCycle": 80,
+            "notes": "Baking/Reheat (via Inv1)",
+            "enabled": true
+        },
+        {
+            "id": "k3",
+            "category": "AC Loads (Inverter)",
+            "name": "Toaster",
+            "quantity": 1,
+            "watts": 900,
+            "hours": 0.04,
+            "dutyCycle": 100,
+            "notes": "Short bursts (via Inv1)",
+            "enabled": true
+        },
+        {
+            "id": "h4",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "Phone/Misc USB",
+            "quantity": 1,
+            "watts": 10,
+            "hours": 6,
+            "dutyCycle": 30,
+            "notes": "Charging small devices",
+            "enabled": true
+        },
+        {
+            "id": "zcsbsae13",
+            "quantity": 1,
+            "category": "DC Loads (Native/DCDC)",
+            "dutyCycle": 100,
+            "name": "12v_Duoetto Water Heater (12V)",
+            "hours": 0.7,
+            "notes": "Gen 1 non-v2 model. 25A current draw. Assumed 1hr/day for heating 10L.",
+            "watts": 300,
+            "enabled": true
+        },
+        {
+            "id": "yd8didnl3",
+            "quantity": 1,
+            "hours": 12,
+            "name": "12V_ MAIN Exhaust Fan",
+            "category": "DC Loads (Native/DCDC)",
+            "watts": 42,
+            "dutyCycle": 100,
+            "notes": "172mm high-performance DC fan. Estimated 3.5A draw at 12V.",
+            "enabled": true
+        },
+        {
+            "id": "c2",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "12v_Sirocco Fan",
+            "quantity": 1,
+            "watts": 4,
+            "hours": 8,
+            "dutyCycle": 100,
+            "notes": "Sleeping/Desk (via 12V Conv)",
+            "enabled": true
+        },
+        {
+            "id": "h3",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "12v_LED Lights (All)",
+            "quantity": 1,
+            "watts": 20,
+            "hours": 7,
+            "dutyCycle": 80,
+            "notes": "Evening (via 12V Conv)",
+            "enabled": true
+        },
+        {
+            "id": "c4",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "12v_Toilet/Cab Fans",
+            "quantity": 4,
+            "watts": 8,
+            "hours": 24,
+            "dutyCycle": 100,
+            "notes": "Intermittent (via 12V Conv)",
+            "enabled": true
+        },
+        {
+            "id": "h2",
+            "category": "DC Loads (Native/DCDC)",
+            "name": "12v_Water Pump",
+            "quantity": 1,
+            "watts": 60,
+            "hours": 0.4,
+            "dutyCycle": 100,
+            "notes": "Showers/Dishes (via 12V Conv)",
+            "enabled": true
+        },
+        {
+            "id": "j2lg4bb8e",
+            "quantity": 1,
+            "notes": "Estimated idle/standby power consumption for a 4000W inverter.",
+            "category": "System Mgmt",
+            "hours": 1,
+            "watts": 30,
+            "name": "Inv1_ 4kW Inverter (Standby)",
+            "dutyCycle": 100,
+            "enabled": true
+        },
+        {
+            "id": "cvwjsayv3",
+            "quantity": 1,
+            "notes": "Idle/standby power consumption for a small 150W inverter.",
+            "category": "System Mgmt",
+            "hours": 10,
+            "dutyCycle": 100,
+            "watts": 5,
+            "name": "Inv2_ 150W Inverter (Standby)",
+            "enabled": true
+        },
+        {
+            "id": "f08uqdezn",
+            "quantity": 1,
+            "name": "Victron Smartshunt",
+            "dutyCycle": 100,
+            "hours": 24,
+            "watts": 1,
+            "notes": "Battery monitor, negligible power draw (~1W)",
+            "category": "System Mgmt",
+            "enabled": true
+        },
+        {
+            "id": "pu9chrzyp",
+            "quantity": 2,
+            "category": "System Mgmt",
+            "watts": 1,
+            "hours": 24,
+            "dutyCycle": 100,
+            "name": "Victron Orion-Tr 24/12-20A DC-DC Converter (Standby)",
+            "notes": "Standby power consumption for the 20A DC-DC converter. Efficiency losses are calculated by the system.",
+            "enabled": true
+        },
+        {
+            "id": "1ab0p51gg",
+            "quantity": 1,
+            "dutyCycle": 100,
+            "watts": 300,
+            "category": "AC Loads (Inverter)",
+            "notes": "Standard 250W model, estimated 6 minutes of daily use.",
+            "hours": 0.02,
+            "name": "Magic Bullet Blender",
+            "enabled": true
+        },
+        {
+            "id": "d6kztfsj4",
+            "quantity": 1,
+            "name": "32\" 4K Monitor (AC)",
+            "dutyCycle": 90,
+            "watts": 50,
+            "notes": "Estimated average power consumption for a 32-inch 4K LED monitor.",
+            "category": "AC Loads (Inverter)",
+            "hours": 8,
+            "enabled": true
+        },
+        {
+            "id": "hei9saj2b",
+            "quantity": 2,
+            "name": "Redodo 24V (2*12V) Battery Balancer",
+            "notes": "Battery management for series connection; estimated low standby power draw (~5-10mA).",
+            "hours": 24,
+            "category": "System Mgmt",
+            "dutyCycle": 100,
+            "watts": 1,
+            "enabled": true
+        }
+    ],
+    "charging": [
+        {
+            "id": "pmf1du95f",
+            "quantity": 2,
+            "input": 475,
+            "efficiency": 0.94,
+            "type": "solar",
+            "name": "BF: TSM-475NEG9RH.28",
+            "hours": 7,
+            "unit": "W",
+            "autoSolar": false,
+            "enabled": false
+        },
+        {
+            "id": "ysopreslw",
+            "quantity": 1,
+            "input": 475,
+            "efficiency": 0.94,
+            "name": "BF: Trina TSM-475NEG9RH.28",
+            "type": "solar",
+            "hours": 7,
+            "unit": "W",
+            "autoSolar": false,
+            "enabled": true
+        },
+        {
+            "id": "66tmxuw7g",
+            "quantity": 2,
+            "efficiency": 0.87,
+            "unit": "W",
+            "hours": 7,
+            "type": "solar",
+            "name": "JKM440N-54HL4R-B",
+            "input": 440,
+            "enabled": true,
+            "autoSolar": false
+        },
+        {
+            "id": "umv48rpsc",
+            "quantity": 1,
+            "input": 440,
+            "unit": "W",
+            "name": "BF: JKM440N (JKM440N-54HL4R-BDB)",
+            "efficiency": 0.87,
+            "hours": 7,
+            "type": "solar",
+            "enabled": true,
+            "autoSolar": false
+        },
+        {
+            "id": "jv6mt1i1a",
+            "name": "AC charger (20a via 800w generator)",
+            "quantity": 1,
+            "input": 420,
+            "unit": "W",
+            "efficiency": 0.85,
+            "type": "solar",
+            "hours": 6,
+            "autoSolar": false,
+            "enabled": false
+        },
+        {
+            "id": "0n7jlfkp8",
+            "quantity": 1,
+            "type": "alternator",
+            "input": 480,
+            "name": "Alternator - 20A DCDC (12>24V)",
+            "unit": "W",
+            "hours": 2,
+            "autoSolar": false,
+            "efficiency": 0.9,
+            "enabled": false
+        }
+    ],
+    "battery": {
+        "capacityAh": 400,
+        "voltage": 24,
+        "initialSoC": 100,
+        "location": "2048",
+        "forecastMode": "now",
+        "forecastMonth": "2026-03-01",
+        "forecast": {
+            "fetched": false,
+            "loading": false,
+            "updatedAt": "2026-01-04T19:23:21.654Z",
+            "error": null
+        }
+    }
+}
