@@ -7,6 +7,7 @@ const getClient = () => {
   if (!apiKey) {
     throw new Error("VITE_GEMINI_API_KEY is not set. Please add it to your environment variables.");
   }
+  // @google/genai expects an options object with apiKey
   return new GoogleGenAI({ apiKey });
 };
 

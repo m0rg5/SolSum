@@ -86,6 +86,7 @@ const ChatBot: React.FC<ChatBotProps> = ({
   const [pendingToolCall, setPendingToolCall] = useState<FunctionCall | null>(null);
   const [dynamicQs, setDynamicQs] = useState<string[]>([]);
   const [showMoreSuggestions, setShowMoreSuggestions] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
   const lastProcessedContextRef = useRef<string | null>(null);
 
   const chatSessionRef = useRef<Chat | null>(null);
@@ -117,10 +118,15 @@ const ChatBot: React.FC<ChatBotProps> = ({
 
   // Create session only once per mode/open state
   useEffect(() => {
-    if (isOpen && mode !== 'zoneSizing' && !chatSessionRef.current) {
-      chatSessionRef.current = createChatSession(mode);
+    if (isOpen && mode !== 'zoneSizing' && !chatSessionRef.current && !initError) {
+      try {
+        chatSessionRef.current = createChatSession(mode);
+      } catch (err: any) {
+        console.error("ChatBot Init Error:", err);
+        setInitError(err.message || "Failed to initialize AI");
+      }
     }
-  }, [isOpen, mode]);
+  }, [isOpen, mode, initError]);
 
   // Set initial greeting
   useEffect(() => {
@@ -130,16 +136,27 @@ const ChatBot: React.FC<ChatBotProps> = ({
         : (mode === 'load'
           ? 'Ready to add **Load Items**. Paste a Model Number or Name.'
           : 'Ready to add **Sources**. Paste a Panel Model or Specs.');
-      setMessages([{
+
+      const msgs: ChatMessage[] = [{
         role: 'model',
         text: greetingText,
         summary: greetingText,
         expanded: greetingText,
         timestamp: new Date(),
         category: 'general'
-      }]);
+      }];
+
+      if (initError) {
+        msgs.push({
+          role: 'model',
+          text: `⚠️ **AI Service Offline**: ${initError}`,
+          isError: true,
+          timestamp: new Date()
+        });
+      }
+      setMessages(msgs);
     }
-  }, [isOpen, mode]);
+  }, [isOpen, mode, initError]);
 
   // Handle context items (🤖 ➕)
   useEffect(() => {
@@ -278,7 +295,7 @@ const ChatBot: React.FC<ChatBotProps> = ({
       }
     } catch (error: any) {
       if (!silent) setMessages(prev => [...prev, { role: 'model', text: `Error: ${error.message || 'Unknown API Error'}`, isError: true, timestamp: new Date() }]);
-      chatSessionRef.current = null;
+      // DO NOT reset chatSessionRef.current = null here to avoid infinite loops
     } finally {
       setIsTyping(false);
     }
