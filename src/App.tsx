@@ -381,7 +381,7 @@ const App = () => {
             onUpdateSource: handleUpdateSource,
             onDeleteSource: (id) => setCharging(p => p.filter(s => s.id !== id)),
             onAddSource: () => setCharging(p => [...p, { id: Math.random().toString(36).substr(2, 9), name: 'New Source', quantity: 1, input: 0, unit: 'W', efficiency: 0.9, type: 'solar', hours: 5, autoSolar: false, enabled: true }]),
-            onAIAddSource: () => { setChatMode('source'); setChatOpen(true); },
+            onAIAddSource: () => { setForcedCategory(null); setChatMode('source'); setChatOpen(true); },
             onZoneSizing: () => {
               setZoneSection('generation');
               setChatMode('zoneSizing');
@@ -455,8 +455,8 @@ const App = () => {
       isOpen: chatOpen,
       modeProp: chatMode,
       zoneSizingSection: zoneSection,
-      onOpen: () => { setChatMode('general'); setZoneSection(null); setChatOpen(true); },
-      onClose: () => setChatOpen(false),
+      onOpen: () => { setChatMode('general'); setZoneSection(null); setForcedCategory(null); setChatOpen(true); },
+      onClose: () => { setChatOpen(false); setForcedCategory(null); },
       onAddLoadItem: handleAIAddLoad,
       onAddChargingSource: handleAIAddSource
     })]
