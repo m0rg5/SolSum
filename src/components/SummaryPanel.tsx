@@ -45,8 +45,8 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({ totals, systemVoltage, item
                     {icon}
                 </span>
                 <div className="flex flex-col items-start flex-1 border-l border-slate-800/50 pl-2 text-left">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{label}</span>
-                    <span className={`font-mono font-black text-[12px] leading-tight mt-0.5 ${textColor}`}>{text}</span>
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">{label}</span>
+                    <span className={`font-mono font-black text-[13px] leading-tight mt-0.5 ${textColor}`}>{text}</span>
                 </div>
             </div>
         );
@@ -57,7 +57,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({ totals, systemVoltage, item
             {/* 24H SOC Box */}
             <div className="w-full bg-slate-950 p-3 rounded-xl border border-slate-800 shadow-2xl flex flex-col items-center relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
-                <h3 className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1.5">24H SOC</h3>
+                <h3 className="text-[13px] text-slate-500 font-bold uppercase tracking-widest mb-1.5">24H SOC</h3>
                 <div className={`app-header-font text-3xl mb-2 drop-shadow-lg transition-all duration-500 ${socColor}`}>
                     {totals.finalSoC.toFixed(0)}%
                 </div>
@@ -72,11 +72,11 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({ totals, systemVoltage, item
                 <div className="flex flex-col gap-1.5 w-full max-w-[90px]">
                     <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 shadow-md flex flex-col items-center group/box hover:border-cyan-500/30 transition-colors">
                         <span className="text-[6px] text-slate-600 uppercase font-black mb-0.5 tracking-widest leading-none">Input</span>
-                        <span className="font-mono text-cyan-400 font-black text-[9px] tracking-tight">+{totals.dailyAhGenerated.toFixed(0)}Ah</span>
+                        <span className="font-mono text-cyan-400 font-black text-[11px] tracking-tight">+{totals.dailyAhGenerated.toFixed(0)}Ah</span>
                     </div>
                     <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 shadow-md flex flex-col items-center group/box hover:border-rose-500/30 transition-colors">
                         <span className="text-[6px] text-slate-600 uppercase font-black mb-0.5 tracking-widest leading-none">Output</span>
-                        <span className="font-mono text-rose-400 font-black text-[9px] tracking-tight">-{totals.dailyAhConsumed.toFixed(0)}Ah</span>
+                        <span className="font-mono text-rose-400 font-black text-[11px] tracking-tight">-{totals.dailyAhConsumed.toFixed(0)}Ah</span>
                     </div>
                 </div>
             </div>
@@ -86,7 +86,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({ totals, systemVoltage, item
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent"></div>
 
                 <div className="flex flex-col items-center mb-4">
-                    <h3 className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                    <h3 className="text-[13px] text-slate-500 font-bold uppercase tracking-widest">
                         BATTERY LIFE
                     </h3>
                 </div>

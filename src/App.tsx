@@ -374,7 +374,7 @@ const App = () => {
             }), _jsxs("div", { className: "flex-1 min-w-[70px] bg-slate-900 p-[7px] rounded-lg border border-slate-800 ring-1 ring-white/5 shadow-inner flex flex-col justify-center", children: [_jsx("label", { className: "config-label-small uppercase text-slate-600 font-black block mb-0.5 tracking-widest", children: "VOLTAGE" }), _jsxs("select", { value: battery.voltage, onChange: (e) => handleUpdateBattery('voltage', Number(e.target.value)), className: "bg-transparent border-none w-full text-slate-200 font-mono config-input-small focus:ring-0 font-black outline-none p-0 cursor-pointer", children: [_jsx("option", { value: 12, className: "bg-slate-900 text-slate-200", children: "12V" }), _jsx("option", { value: 24, className: "bg-slate-900 text-slate-200", children: "24V" }), _jsx("option", { value: 48, className: "bg-slate-900 text-slate-200", children: "48V" })] })] }), _jsxs("div", { className: "flex-1 min-w-[70px] bg-slate-900 p-[7px] rounded-lg border border-slate-800 ring-1 ring-white/5 shadow-inner flex flex-col justify-center", children: [_jsx("label", { className: "config-label-small uppercase text-slate-600 font-black block mb-0.5 tracking-widest", children: "BATTERY AH" }), _jsx("input", { type: "number", value: battery.capacityAh, onChange: (e) => handleUpdateBattery('capacityAh', Number(e.target.value)), className: "bg-transparent border-none w-full text-slate-200 font-mono config-input-small focus:ring-0 font-black outline-none p-0" })] }), _jsxs("div", { className: "flex-1 min-w-[70px] bg-slate-900 p-[7px] rounded-lg border border-slate-800 ring-1 ring-white/5 shadow-inner flex flex-col justify-center", children: [_jsx("label", { className: "config-label-small uppercase text-slate-600 font-black block mb-0.5 tracking-widest", children: "INITIAL SOC (%)" }), _jsx("input", { type: "number", value: battery.initialSoC, onChange: (e) => handleUpdateBattery('initialSoC', Math.min(100, Number(e.target.value))), className: "bg-transparent border-none w-full text-slate-200 font-mono config-input-small focus:ring-0 font-black outline-none p-0" })] }), _jsxs("div", { className: "w-[40px] flex flex-col gap-1 self-stretch", children: [_jsx("button", { onClick: handleExport, className: "flex-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors flex items-center justify-center group", title: "Export JSON", children: _jsx("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2.5, stroke: "currentColor", className: "w-3 h-3 text-slate-400 group-hover:text-blue-400 transition-colors", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" }) }) }), _jsxs("button", { onClick: handleTriggerImport, className: "flex-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors flex items-center justify-center group", title: "Import JSON", children: [_jsx("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2.5, stroke: "currentColor", className: "w-3 h-3 text-slate-400 group-hover:text-emerald-400 transition-colors", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" }) }), _jsx("input", { type: "file", ref: fileInputRef, accept: ".json", onChange: handleImport, className: "hidden" })] })] })]
           })
         }), _jsxs("section", {
-          children: [_jsx("h2", { className: "text-[10px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "Generation (Power In)" }), _jsx(ChargingTable, {
+          children: [_jsx("h2", { className: "text-[12px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "Generation (Power In)" }), _jsx(ChargingTable, {
             sources: charging,
             battery: battery,
             highlightedId: highlightedRow?.kind === 'source' ? highlightedRow.id : null,
@@ -392,7 +392,7 @@ const App = () => {
             onSort: () => { }
           })]
         }), _jsxs("section", {
-          children: [_jsx("h2", { className: "text-[10px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "System Mgmt" }), _jsx(EnergyTable, {
+          children: [_jsx("h2", { className: "text-[12px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "System Mgmt" }), _jsx(EnergyTable, {
             items: items,
             systemVoltage: battery.voltage,
             highlightedId: highlightedRow?.kind === 'load' ? highlightedRow.id : null,
@@ -410,7 +410,7 @@ const App = () => {
             onSort: () => { }
           })]
         }), _jsxs("section", {
-          children: [_jsx("h2", { className: "text-[10px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "AC (VIA INVERTER)" }), _jsx(EnergyTable, {
+          children: [_jsx("h2", { className: "text-[12px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "AC (VIA INVERTER)" }), _jsx(EnergyTable, {
             items: items,
             systemVoltage: battery.voltage,
             highlightedId: highlightedRow?.kind === 'load' ? highlightedRow.id : null,
@@ -428,7 +428,7 @@ const App = () => {
             onSort: () => { }
           })]
         }), _jsxs("section", {
-          children: [_jsx("h2", { className: "text-[10px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "DC (NATIVE &/OR VIA CONVERTER)" }), _jsx(EnergyTable, {
+          children: [_jsx("h2", { className: "text-[12px] text-slate-500 font-bold mb-4 uppercase tracking-widest", children: "DC (NATIVE &/OR VIA CONVERTER)" }), _jsx(EnergyTable, {
             items: items,
             systemVoltage: battery.voltage,
             highlightedId: highlightedRow?.kind === 'load' ? highlightedRow.id : null,
