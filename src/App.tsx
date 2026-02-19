@@ -77,6 +77,7 @@ const App = () => {
   const [chatMode, setChatMode] = useState<ChatMode>('general');
   const [zoneSection, setZoneSection] = useState<ZoneSizingSection>(null);
   const [highlightedRow, setHighlightedRow] = useState(null);
+  const [forcedCategory, setForcedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setHasHydrated(true), 100);
@@ -187,14 +188,16 @@ const App = () => {
   }, []);
   const handleAIAddLoad = useCallback((itemProps) => {
     const id = Math.random().toString(36).substr(2, 9);
+    // forcedCategory overrides the AI's category when triggered from a specific section's 🤖+ button
     setItems(prev => [...prev, {
       id, quantity: 1, watts: 0, dutyCycle: 100, notes: '', ...itemProps,
       hours: itemProps.hours === 0 ? 0 : (Number(itemProps.hours) || 1),
-      category: itemProps.category, enabled: true
+      category: forcedCategory || itemProps.category, enabled: true
     }]);
+    setForcedCategory(null);
     setHighlightedRow({ id, kind: 'load' });
     setTimeout(() => setHighlightedRow(null), 2500);
-  }, []);
+  }, [forcedCategory]);
   const handleAIAddSource = useCallback((sourceProps) => {
     const id = Math.random().toString(36).substr(2, 9);
     setCharging(prev => [...prev, {
@@ -396,7 +399,7 @@ const App = () => {
             onUpdateItem: handleUpdateItem,
             onDeleteItem: handleDeleteItem,
             onAddItem: handleAddItem,
-            onAIAddItem: () => { setChatMode('load'); setChatOpen(true); },
+            onAIAddItem: () => { setForcedCategory(LoadCategory.SYSTEM_MGMT); setChatMode('load'); setChatOpen(true); },
             onZoneSizing: () => {
               setZoneSection('systemMgmt');
               setChatMode('zoneSizing');
@@ -414,7 +417,7 @@ const App = () => {
             onUpdateItem: handleUpdateItem,
             onDeleteItem: handleDeleteItem,
             onAddItem: handleAddItem,
-            onAIAddItem: () => { setChatMode('load'); setChatOpen(true); },
+            onAIAddItem: () => { setForcedCategory(LoadCategory.AC_LOADS); setChatMode('load'); setChatOpen(true); },
             onZoneSizing: () => {
               setZoneSection('ac');
               setChatMode('zoneSizing');
@@ -432,7 +435,7 @@ const App = () => {
             onUpdateItem: handleUpdateItem,
             onDeleteItem: handleDeleteItem,
             onAddItem: handleAddItem,
-            onAIAddItem: () => { setChatMode('load'); setChatOpen(true); },
+            onAIAddItem: () => { setForcedCategory(LoadCategory.DC_LOADS); setChatMode('load'); setChatOpen(true); },
             onZoneSizing: () => {
               setZoneSection('dc');
               setChatMode('zoneSizing');
