@@ -25,18 +25,19 @@ const SmartNotesInput: React.FC<SmartNotesInputProps> = ({
     const renderHighlightedText = () => {
         if (!value) return <span className="opacity-40 italic">{placeholder}</span>;
 
-        // Split by space to find tags, but preserve spaces
-        const parts = value.split(/(\s+|#[\w\-\/]+)/g);
+        // Only split on actual #tags — plain text renders as raw text nodes
+        // This ensures sub-pixel character widths match the input exactly
+        const parts = value.split(/(#[\w\-\/]+)/g);
 
         return parts.map((part, i) => {
             if (part.match(/^#[\w\-\/]+$/)) {
                 return (
-                    <span key={i} className="inline-block bg-blue-900/60 text-blue-300 rounded px-1 mx-0.5 text-[9px] font-bold border border-blue-800/50 shadow-sm translate-y-[-1px]">
+                    <span key={i} className="inline-block bg-blue-900/60 text-blue-300 rounded px-1 mx-0.5 text-[9px] font-bold border border-blue-800/50 shadow-sm">
                         {part}
                     </span>
                 );
             }
-            return <span key={i}>{part}</span>;
+            return part; // plain text node — no span wrapper, matches input rendering exactly
         });
     };
 
@@ -86,7 +87,7 @@ const SmartNotesInput: React.FC<SmartNotesInputProps> = ({
     // Shared styles for perfect alignment
     const sharedStyles: React.CSSProperties = {
         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-        fontSize: '10px',
+        fontSize: '11px',
         lineHeight: '1',
         letterSpacing: 'normal',
         paddingLeft: '8px',
@@ -99,7 +100,7 @@ const SmartNotesInput: React.FC<SmartNotesInputProps> = ({
         <div className={`relative group ${className}`}>
             {/* Background Layer */}
             <div
-                className={`absolute inset-0 pointer-events-none flex items-center whitespace-pre overflow-hidden ${!value ? 'opacity-50' : ''}`}
+                className={`absolute inset-0 pointer-events-none whitespace-pre overflow-hidden ${!value ? 'opacity-50' : ''}`}
                 aria-hidden="true"
                 style={sharedStyles}
             >
