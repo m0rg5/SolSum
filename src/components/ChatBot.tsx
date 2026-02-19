@@ -101,7 +101,6 @@ const ChatBot: React.FC<ChatBotProps> = ({
       setMode(modeProp);
       chatSessionRef.current = null;
       setPendingToolCall(null);
-      // Reset chat pane when switching modes
       if (modeProp === 'zoneSizing') {
         setShowChatPane(false);
         setIsMaximized(false);
@@ -116,14 +115,14 @@ const ChatBot: React.FC<ChatBotProps> = ({
     }
   }, [zoneSizingSection]);
 
-  // Create session only once per mode/open state
+  // Create session — use modeProp directly to avoid stale 'mode' state when isOpen + modeProp change simultaneously
   useEffect(() => {
-    if (isOpen && mode !== 'zoneSizing' && !chatSessionRef.current && !initError) {
+    const effectiveMode = modeProp || mode;
+    if (isOpen && effectiveMode !== 'zoneSizing' && !chatSessionRef.current && !initError) {
       try {
-        const session = createChatSession(mode);
+        const session = createChatSession(effectiveMode);
         chatSessionRef.current = session;
 
-        // If we had a pending context lookup, trigger it now
         if (contextItem && lastProcessedContextRef.current !== contextItem.id) {
           lastProcessedContextRef.current = contextItem.id;
           handleSubmit(null, `Technical extraction for: "${contextItem.name}".`, true);
@@ -133,7 +132,8 @@ const ChatBot: React.FC<ChatBotProps> = ({
         setInitError(err.message || "Failed to initialize AI");
       }
     }
-  }, [isOpen, mode, initError, contextItem]);
+  }, [isOpen, mode, modeProp, initError, contextItem]);
+
 
   // Set initial greeting
   useEffect(() => {

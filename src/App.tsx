@@ -399,7 +399,7 @@ const App = () => {
             onUpdateItem: handleUpdateItem,
             onDeleteItem: handleDeleteItem,
             onAddItem: handleAddItem,
-            onAIAddItem: () => { setForcedCategory(LoadCategory.SYSTEM_MGMT); setChatMode('load'); setChatOpen(true); },
+            onAIAddItem: (cat) => { setForcedCategory(cat || LoadCategory.SYSTEM_MGMT); setChatMode('load'); setChatOpen(true); },
             onZoneSizing: () => {
               setZoneSection('systemMgmt');
               setChatMode('zoneSizing');
@@ -417,7 +417,7 @@ const App = () => {
             onUpdateItem: handleUpdateItem,
             onDeleteItem: handleDeleteItem,
             onAddItem: handleAddItem,
-            onAIAddItem: () => { setForcedCategory(LoadCategory.AC_LOADS); setChatMode('load'); setChatOpen(true); },
+            onAIAddItem: (cat) => { setForcedCategory(cat || LoadCategory.AC_LOADS); setChatMode('load'); setChatOpen(true); },
             onZoneSizing: () => {
               setZoneSection('ac');
               setChatMode('zoneSizing');
@@ -435,7 +435,7 @@ const App = () => {
             onUpdateItem: handleUpdateItem,
             onDeleteItem: handleDeleteItem,
             onAddItem: handleAddItem,
-            onAIAddItem: () => { setForcedCategory(LoadCategory.DC_LOADS); setChatMode('load'); setChatOpen(true); },
+            onAIAddItem: (cat) => { setForcedCategory(cat || LoadCategory.DC_LOADS); setChatMode('load'); setChatOpen(true); },
             onZoneSizing: () => {
               setZoneSection('dc');
               setChatMode('zoneSizing');
